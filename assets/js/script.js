@@ -31,6 +31,38 @@ class Cadastro {
             listaCadastrados.appendChild(alunoDiv);
         });
     }
+
+    editarAluno(index) {
+        const aluno = this.alunos[index];
+        document.getElementById("nome").value = aluno.nome;
+        document.getElementById("idade").value = aluno.idade;
+        document.getElementById("serie").value = aluno.serie;
+
+        document.getElementById("cadastrarBtn").textContent = "Atualizar";
+        document.getElementById("cadastrarBtn").onclick = () => {
+            this.alunos[index].nome = document.getElementById("nome").value;
+            this.alunos[index].idade = document.getElementById("idade").value;
+            this.alunos[index].serie = document.getElementById("serie").value;
+            this.atualizarLista();
+            this.resetForm();
+        };
+    }
+
+    deletarAluno(index) {
+        this.alunos.splice(index, 1);
+        this.atualizarLista();
+    }
+
+    resetForm() {
+        document.getElementById("cadastroForm").reset();
+        document.getElementById("cadastrarBtn").textContent = "Cadastrar";
+        document.getElementById("cadastrarBtn").onclick = () => {
+            const nome = document.getElementById("nome").value;
+            const idade = document.getElementById("idade").value;
+            const serie = document.getElementById("serie").value;
+            this.adicionarAluno(nome, idade, serie);
+        };
+    }
 }
 
 const cadastro = new Cadastro();
