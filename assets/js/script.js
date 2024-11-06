@@ -9,12 +9,21 @@ class Aluno {
 class Cadastro {
     constructor() {
         this.alunos = [];
+        this.editIndex = null;
     }
 
     adicionarAluno(nome, idade, serie) {
+        // Validação de idade
+        if (idade < 1 || idade > 100) {
+            this.exibirErro("Insira uma idade válida");
+            return;
+        }
+
         const novoAluno = new Aluno(nome, idade, serie);
         this.alunos.push(novoAluno);
         this.atualizarLista();
+        this.resetForm();
+        this.limparErro();
     }
 
     atualizarLista() {
@@ -22,11 +31,11 @@ class Cadastro {
         listaCadastrados.innerHTML = "";
         this.alunos.forEach((aluno, index) => {
             const alunoDiv = document.createElement("div");
-            alunoDiv.classList.add("aluno");
+            alunoDiv.classList.add("student-item");
             alunoDiv.innerHTML = `
                 <span>${aluno.nome}, ${aluno.idade} anos, Série: ${aluno.serie}</span>
-                <button onclick="cadastro.editarAluno(${index})">Editar</button>
-                <button onclick="cadastro.deletarAluno(${index})">Deletar</button>
+                <button class="update" onclick="cadastro.editarAluno(${index})">Editar</button>
+                <button class="remove" onclick="cadastro.deletarAluno(${index})">Deletar</button>
             `;
             listaCadastrados.appendChild(alunoDiv);
         });
@@ -38,14 +47,30 @@ class Cadastro {
         document.getElementById("idade").value = aluno.idade;
         document.getElementById("serie").value = aluno.serie;
 
+        this.editIndex = index;
         document.getElementById("cadastrarBtn").textContent = "Atualizar";
-        document.getElementById("cadastrarBtn").onclick = () => {
-            this.alunos[index].nome = document.getElementById("nome").value;
-            this.alunos[index].idade = document.getElementById("idade").value;
-            this.alunos[index].serie = document.getElementById("serie").value;
+        document.getElementById("cadastrarBtn").classList.remove("add");
+        document.getElementById("cadastrarBtn").classList.add("update");
+    }
+
+    atualizarAluno() {
+        const nome = document.getElementById("nome").value;
+        const idade = document.getElementById("idade").value;
+        const serie = document.getElementById("serie").value;
+
+        if (idade < 1 || idade > 100) {
+            this.exibirErro("Insira uma idade válida");
+            return;
+        }
+
+        if (this.editIndex !== null) {
+            this.alunos[this.editIndex].nome = nome;
+            this.alunos[this.editIndex].idade = idade;
+            this.alunos[this.editIndex].serie = serie;
             this.atualizarLista();
             this.resetForm();
-        };
+            this.limparErro();
+        }
     }
 
     deletarAluno(index) {
@@ -55,20 +80,33 @@ class Cadastro {
 
     resetForm() {
         document.getElementById("cadastroForm").reset();
-        document.getElementById("cadastrarBtn").textContent = "Cadastrar";
-        document.getElementById("cadastrarBtn").onclick = () => {
-            const nome = document.getElementById("nome").value;
-            const idade = document.getElementById("idade").value;
-            const serie = document.getElementById("serie").value;
-            this.adicionarAluno(nome, idade, serie);
-        };
+        document.getElementById("cadastrarBtn").textContent = "Adicionar Aluno";
+        document.getElementById("cadastrarBtn").classList.remove("update");
+        document.getElementById("cadastrarBtn").classList.add("add");
+        this.editIndex = null;
+    }
+
+    exibirErro(mensagem) {
+        const errorMessageDiv = document.getElementById("error-message");
+        errorMessageDiv.textContent = mensagem;
+    }
+
+    limparErro() {
+        const errorMessageDiv = document.getElementById("error-message");
+        errorMessageDiv.textContent = "";
     }
 }
 
 const cadastro = new Cadastro();
+
 document.getElementById("cadastrarBtn").onclick = () => {
     const nome = document.getElementById("nome").value;
     const idade = document.getElementById("idade").value;
     const serie = document.getElementById("serie").value;
-    cadastro.adicionarAluno(nome, idade, serie);
+
+    if (cadastro.editIndex === null) {
+        cadastro.adicionarAluno(nome, idade, serie);
+    } else {
+        cadastro.atualizarAluno();
+    }
 };
